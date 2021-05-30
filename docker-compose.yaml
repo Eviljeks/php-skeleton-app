@@ -3,6 +3,9 @@ version: '3'
 services:
     backend:
         build:
+            args:
+                UID: 1000
+                GID: 1000
             context: docker/php
         volumes:
             - .:/app
@@ -10,6 +13,11 @@ services:
             - .env
         ports:
             - "8088:8088"
+        environment: 
+            XDEBUG_CONFIG: "remote_host=192.168.220.1 remote_enable=1"
+            PHP_IDE_CONFIG: "serverName=skeleton"
+        networks:
+            - internal
     db:
         image: postgres
         environment:
@@ -18,3 +26,23 @@ services:
             POSTGRES_USER: test
         ports:
             - "5433:5432"
+        networks:
+            - internal
+    nginx:
+        build:
+            context: docker/nginx
+        volumes:
+            - ./:/app
+        ports:
+            - "80:80"
+        depends_on:
+            - backend
+        networks:
+            - internal
+networks:
+    internal:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                - subnet: 192.168.220.0/28
