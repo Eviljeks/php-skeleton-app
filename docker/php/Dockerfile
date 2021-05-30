@@ -3,17 +3,25 @@ FROM php:8-fpm-alpine
 ARG UID
 ARG GID
 
-RUN apk --update --no-cache add \
+RUN set -ex; \
+    \
+    apk add --no-cache --virtual .build-deps \
+        postgresql-dev \
+    ; \
+    docker-php-ext-configure pgsql \
+        -with-pgsql=/usr/include/postgresql/ \
+    ; \
+    docker-php-ext-install \
+        pdo \
+        pdo_pgsql \
+        pgsql  \
+    ; \
+    pecl install xdebug &&  docker-php-ext-enable xdebug \
+    ; \
+    apk --update --no-cache add \
     php8-mbstring \
     php8-json \
     php8-xml \
-    php8-pdo_dblib \
-    php8-pdo_odbc \
-    php8-pdo_pgsql \
-    php8-pgsql \
-    php8-mysqli \
-    php8-pdo_mysql \
-    php8-pdo_sqlite \
     php8-intl \
     php8-opcache \
     php8-openssl \
@@ -23,8 +31,13 @@ RUN apk --update --no-cache add \
     php8-gd \
     sudo bash git supervisor nginx curl bash openssl ca-certificates
 
-COPY php.ini /etc/php/8/cli/php.ini
-COPY php.ini /etc/php/8/fpm/php.ini
+COPY php.ini /usr/local/etc/php/php.ini
+COPY xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
+
+RUN apk --no-cache add pcre-dev ${PHPIZE_DEPS} \ 
+    && pecl install xdebug \
+    && docker-php-ext-enable xdebug \
+    && apk del pcre-dev ${PHPIZE_DEPS}
 
 WORKDIR /app
 
