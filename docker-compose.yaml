@@ -3,14 +3,9 @@ version: '3'
 services:
     backend:
         build:
-            args:
-                UID: 1000
-                GID: 1000
             context: docker/php
         volumes:
             - .:/app
-        env_file:
-            - .env
         ports:
             - "8088:8088"
         environment: 

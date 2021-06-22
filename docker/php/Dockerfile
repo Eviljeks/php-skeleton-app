@@ -16,8 +16,6 @@ RUN set -ex; \
         pdo_pgsql \
         pgsql  \
     ; \
-    pecl install xdebug &&  docker-php-ext-enable xdebug \
-    ; \
     apk --update --no-cache add \
     php8-mbstring \
     php8-json \
@@ -33,6 +31,7 @@ RUN set -ex; \
 
 COPY php.ini /usr/local/etc/php/php.ini
 COPY xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
+COPY enter /usr/local/bin/enter
 
 RUN apk --no-cache add pcre-dev ${PHPIZE_DEPS} \ 
     && pecl install xdebug \
@@ -41,11 +40,7 @@ RUN apk --no-cache add pcre-dev ${PHPIZE_DEPS} \
 
 WORKDIR /app
 
-RUN addgroup -S backend -g ${GID} && adduser -S -G backend backend -u ${UID}
-
-RUN curl https://get.symfony.com/cli/installer | bash
-
-RUN mv ~/.symfony/bin/symfony /usr/local/bin/symfony
+RUN addgroup -S backend && adduser -S -G backend backend
 
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
