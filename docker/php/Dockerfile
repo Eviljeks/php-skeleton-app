@@ -40,8 +40,10 @@ RUN apk --no-cache add pcre-dev ${PHPIZE_DEPS} \
 
 WORKDIR /app
 
-RUN addgroup -S backend && adduser -S -G backend backend
+RUN addgroup -S backend -g ${GID} && adduser -S -G backend backend -u ${UID}
 
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
 USER backend
+
+# CMD ["/usr/local/bin/enter"]

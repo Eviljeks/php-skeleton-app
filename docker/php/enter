@@ -4,4 +4,4 @@ cp .env.dist .env
 
 composer install || true
 
-./bin/console doctrine:mig:mig -n
+# ./bin/console doctrine:mig:mig -n
